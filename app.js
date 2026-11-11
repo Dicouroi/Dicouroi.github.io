@@ -1,0 +1,61 @@
+
+'use strict';
+const app = document.getElementById('main');
+const avatarUrl = './assets/blog-avatar-v2.png';
+const blogUsername = 'Clay Designs and Crafts';
+let selectedCategory = 'All projects';
+let storageAvailable = true;
+let saved = [];
+try { const value = JSON.parse(localStorage.getItem('clay-saved') || '[]'); saved = Array.isArray(value) ? value.filter(id => posts.some(p => p.id === id)) : []; } catch { storageAvailable = false; }
+const pages = {
+ about: {title:'A little clay. A little curiosity.',content:`<p>Clay Designs and Crafts is a journal for people who enjoy making things slowly. We explore simple forms, earthy colors, and the small details that turn everyday objects into something personal.</p><h2>For the joy of making</h2><p>Here you will find approachable project ideas, notes on technique, and inspiration for your next afternoon at the worktable. Start small, test your materials, and let your hands find their own rhythm.</p><h2>About the projects</h2><p>The project imagery is AI-generated visual inspiration. The tutorials suggest ways to interpret those designs, rather than documenting a tested physical build. Clay type cannot be established from an image. Always follow the directions for your specific material and finish.</p><p>Our decorative air-dry clay projects are intended for dry display. Use purpose-made equipment for real flames, burning incense, water, or food contact. Polymer clay jewelry follows its own curing requirements.</p><a class="button" href="#projects">Find your next project <span>&#8599;</span></a>`},
+ start: {title:'Your first handful of clay.',content:`<p>You do not need a pottery wheel or a perfect studio to begin. Choose a small project and give yourself time to learn how the material feels.</p><h2>Start with the right material</h2><p>Air-dry clay is useful for decorative objects. Polymer clay is a different material used in the earring project and must be cured according to its packaging. Ceramic clay requires an appropriate firing process. These materials are not interchangeable.</p><h2>A simple worktable kit</h2><ul><li>A smooth protective board.</li><li>Clay in its original packaging, with its directions.</li><li>A blunt shaping tool and a barely damp sponge.</li><li>A safe place for the work to dry or cure.</li></ul><h2>Make one small object first</h2><p>Begin with an open pinch pot. Keep its walls even and its base steady. Use a test tile to try paint or coatings, and wait until each stage is complete before moving on.</p><a class="button" href="#organic-pinch-pots-for-a-slow-sunday">Try the pinch pot project <span>&#8599;</span></a>`},
+ contact: {title:'A note to the studio.',content:`<p>Questions, project feedback, or a detail you would like us to clarify? Use the email address supplied with the original blog:</p><p><a href="mailto:contact@carolynadamsulo-creator.github.io">contact@carolynadamsulo-creator.github.io</a></p><p>This link opens your email application. This website does not submit a contact form or collect your message.</p>`},
+ privacy: {title:'Privacy policy',content:`<p>Page updated: November 11, 2026.</p><h2>What this version stores</h2><p>The Save project feature stores project identifiers in your browser's local storage on this device. It does not create an account or send those saved identifiers to us. Unsave projects using their buttons, or clear this site's browser storage to remove the list.</p><h2>External resources</h2><p>The site requests fonts from Google Fonts. Those requests are subject to the provider's privacy practices. The generated project images are stored with the website files.</p><h2>Hosting and email</h2><p>A hosting provider may process ordinary connection information, such as an IP address, when serving the website. Its practices depend on the host used. If you choose to email the contact address, your email service and the recipient's service process that correspondence.</p><h2>Advertising and analytics</h2><p>This supplied version does not include advertising scripts, analytics tags, social tracking widgets, or a newsletter service. This page should be updated if the site owner adds those services or changes how visitor information is handled.</p><h2>Questions</h2><p>Use the <a href="#contact">contact page</a> for questions about this website.</p>`},
+ terms: {title:'Terms of use',content:`<p>Page updated: November 11, 2026.</p><h2>Using this journal</h2><p>These articles provide creative project inspiration and suggested techniques. They do not establish that a particular clay object has been physically tested. Follow the instructions supplied with your own clay, paints, coatings, tools, and equipment.</p><h2>Decorative and functional use</h2><p>Clay types and coatings have different properties. Do not assume decorative craft clay is waterproof, food safe, or suitable for flame and heat. Use products designed for the intended functional task, and check the stability and condition of finished objects before use.</p><h2>Content and imagery</h2><p>The imagery is AI-generated and illustrates design ideas. You may save project links for personal reference. For questions about republishing article text or other site content, contact the site owner.</p><h2>External services</h2><p>Linked services and email providers operate under their own terms and privacy practices.</p>`}
+};
+const esc = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function styledPage(content) {
+ return content.replace(/<h2>/g,'<h2 style="font-size:30px;line-height:1.3;margin:36px 0 18px;color:#0f172a;border-bottom:2px solid #e2e8f0;padding-bottom:10px;font-weight:700;">');
+}
+function card(post,index) {
+ return `<article class="project"><a href="#${post.id}"><div class="project-image"><img src="${esc(post.image)}" alt="${esc(post.alt)}" loading="lazy" width="800" height="800"><span class="project-number">0${index+1}</span></div><div class="project-meta"><span>${post.category}</span><span>${post.readTime}</span></div><h3>${post.title}</h3><p>${post.summary}</p><span class="read-link">Explore the project <span aria-hidden="true">&#8599;</span></span></a></article>`;
+}
+function renderGrid() {
+ const filtered = posts.filter(p=>selectedCategory==='All projects'||(selectedCategory==='Saved' ? saved.includes(p.id) : p.category===selectedCategory));
+ document.getElementById('project-grid').innerHTML = filtered.length ? filtered.map(p=>card(p,posts.indexOf(p))).join('') : '<p class="empty">Your saved shelf is waiting. Open a project and choose Save project.</p>';
+ document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===selectedCategory)));
+}
+function renderHome() {
+ document.title='Clay Designs and Crafts | A Journal for Curious Hands';
+ const hero=posts[0];
+ app.innerHTML=`<div class="wrap"><section class="hero" aria-labelledby="hero-title"><div class="hero-copy"><span class="eyebrow">Find your kind of making</span><h1 id="hero-title">Made by hand.<br>Made for <i>you.</i></h1><p>A little clay. A quiet afternoon. Something entirely your own. Discover thoughtful projects for a more handmade everyday.</p><a class="button" href="#projects">Explore the projects <span aria-hidden="true">&#8599;</span></a><div class="hero-note"><b aria-hidden="true">*</b><span>No perfect edges required.<br>Just a little curiosity.</span></div></div><div class="hero-art"><a href="#${hero.id}" aria-label="Read ${hero.title}"><img src="${esc(hero.image)}" alt="Three organic ivory and terracotta pinch pots on linen in a sunlit studio" width="900" height="900" fetchpriority="high"></a><div class="seal" aria-hidden="true">SLOW MADE<b>clay</b>WITH FEELING</div><div class="image-caption"><span>From the worktable</span><span>No. 01 / Pinch pots</span></div></div></section><div class="ticker" aria-hidden="true"><span>EARTHY COLORS</span><b>&#10035;</b><span>CURIOUS HANDS</span><b>&#10035;</b><span>IMPERFECTLY LOVELY</span><b>&#10035;</b><span>SMALL JOYS</span></div><section id="projects" aria-labelledby="projects-title"><div class="section-heading"><div><span class="eyebrow">The project journal</span><h2 id="projects-title">Something worth making.</h2></div><p>Small objects, big possibilities.<br>Find an idea and make it your own.</p></div><div class="filters" aria-label="Filter projects">${['All projects','Hand building','Home objects','Wearable clay','Saved'].map(c=>`<button type="button" data-filter="${c}" aria-pressed="${c===selectedCategory}">${c}</button>`).join('')}</div><div class="project-grid" id="project-grid"></div></section><section class="about-band"><div><span class="eyebrow">A note from the studio</span><h2>Less perfection.<br>More possibility.</h2></div><div><p>We believe the best things carry a little trace of the hands that made them. A wavy rim. An unexpected curve. A color that feels like home.</p><p>This is a space for trying, learning, and finding joy in the in-between.</p><a class="text-link" href="#about">A little about this journal &#8599;</a></div></section><div class="editor-note">Make a little room for making.</div></div>`;
+ renderGrid();
+}
+function renderPost(post) {
+ document.title=post.title+' | Clay Designs and Crafts';
+ app.innerHTML=`<div class="article-wrap"><a class="back" href="#projects">&#8592; Back to the projects</a><article><span class="eyebrow">${post.category} &nbsp; / &nbsp; ${post.readTime}</span><h1 class="article-title">${post.title}</h1><div class="byline"><img src="${avatarUrl}" alt=""><span>${blogUsername}<br>${post.date}</span></div><img class="article-cover" src="${esc(post.image)}" alt="${esc(post.alt)}" width="1000" height="1000"><p class="excerpt-full">${esc(post.excerpt)}</p><div class="article-body">${post.content}</div><div class="article-actions"><button type="button" class="save-button" data-save="${post.id}" aria-pressed="${saved.includes(post.id)}">${saved.includes(post.id)?'Saved to your shelf':'Save project'}</button><a class="text-link" href="#projects">More to make &#8599;</a></div><p class="notice" role="status" id="save-status"></p></article></div>`;
+}
+function route() {
+ const id=decodeURIComponent(location.hash.slice(1))||'home';
+ document.querySelectorAll('[data-nav]').forEach(a=>{if(a.dataset.nav===id)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+ if(id==='home'||id==='projects') {
+  renderHome();
+  if(id==='projects')requestAnimationFrame(()=>document.getElementById('projects').scrollIntoView());else window.scrollTo(0,0);
+ } else if(pages[id]) {
+  document.title=pages[id].title+' | Clay Designs and Crafts';
+  app.innerHTML=`<div class="article-wrap static-page"><a class="back" href="#home">&#8592; Back to the journal</a><span class="eyebrow">Clay Designs and Crafts</span><h1 class="article-title">${pages[id].title}</h1><div class="article-body">${styledPage(pages[id].content)}</div></div>`;window.scrollTo(0,0);
+ } else {
+  const post=posts.find(p=>p.id===id);
+  if(post)renderPost(post);else {document.title='Page not found | Clay Designs and Crafts';app.innerHTML='<div class="article-wrap static-page"><h1 class="article-title">A little off the worktable.</h1><p>That page could not be found.</p><a class="button" href="#home">Return to the journal</a></div>';}
+  window.scrollTo(0,0);
+ }
+}
+app.addEventListener('click',e=>{
+ const filter=e.target.closest('[data-filter]');
+ if(filter){selectedCategory=filter.dataset.filter;renderGrid();return;}
+ const button=e.target.closest('[data-save]');
+ if(button){const id=button.dataset.save;saved=saved.includes(id)?saved.filter(v=>v!==id):[...saved,id];try{localStorage.setItem('clay-saved',JSON.stringify(saved));storageAvailable=true;}catch{storageAvailable=false;}button.setAttribute('aria-pressed',String(saved.includes(id)));button.textContent=saved.includes(id)?'Saved to your shelf':'Save project';document.getElementById('save-status').textContent=storageAvailable?(saved.includes(id)?'Saved on this device. Find it in the Saved filter.':'Removed from your saved shelf.'):'Browser storage is unavailable. Your selection will last for this visit only.';}
+});
+window.addEventListener('hashchange',route);
+route();
